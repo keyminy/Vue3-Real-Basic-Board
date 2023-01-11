@@ -3,7 +3,7 @@
     <input v-model="writer" type="text" placeholder="글쓴이"/>
     <input v-model="title" type="text" placeholder="제목"/>
     <textarea v-model="content" placeholder="내용"/>
-    <button @click="write">작성</button>
+    <button @click="index === '' ? write() : update()">{{ index === '' ? "작성" : "수정"}}</button>
   </div>
 </template>
 
@@ -11,13 +11,16 @@
 import data from '@/data';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   setup () {
+    const route = useRoute();
     const router = useRouter();
-    const writer=ref('');
-    const title=ref('');
-    const content=ref('');
+    const index  = route.params.contentId;
+    const writer= (index !== '') ? ref(data[index].writer) : ref('');
+    const title= (index !== '') ? ref(data[index].title) : ref('');
+    const content= (index !== '') ? ref(data[index].content) : ref('');
 
     const write = () => {
       data.push({
@@ -29,12 +32,21 @@ export default {
       router.push('/');
     }
 
+    const update = () => {
+      data[index].writer = writer.value;
+      data[index].title = title.value;
+      data[index].content = content.value;
+      router.push('/');
+    }
+
     return {
       data,
+      index,
       writer,
       title,
       content,
-      write
+      write,
+      update
     }
   }
 }
